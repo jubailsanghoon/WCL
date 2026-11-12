@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#ff7f00" />
+  <meta name="application-name" content="Metal Weight & Lifting Assist" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="MWL Assist" />
+
+  <title>강재 중량 및 인양 계산기</title>
+
+  <!-- Favicon & Icons (Clean transparent squircle without black background) -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="shortcut icon" href="favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/m-icon-clean.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/m-icon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/m-icon.png" />
+
+  <!-- Preload fonts & Stylesheet -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header class="top-header">
+    <div class="header-inner">
+      <div class="brand-wrap" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+        <div class="app-logo-box">
+          <img src="icons/m-icon.png" alt="MWL Logo" />
+        </div>
+        <div class="brand-text">
+          <h1 id="appTitle">
+            <span class="title-full" data-i18n="appTitleFull">강재 중량 및 인양 계산기</span>
+            <span class="title-short" data-i18n="appTitleShort">강재 중량·인양</span>
+          </h1>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- App Version Badge to the left of Pro -->
+        <span class="hdr-btn hdr-btn-ver version-badge" id="appVersionBadge" title="Version 1.0">v1.0</span>
+
+        <!-- Compact Pro & Offline controls unified into .hdr-btn style (matching theme & help) -->
+        <button type="button" id="proBadge" class="hdr-btn hdr-btn-pro pro-badge-compact is-pro" title="License: PRO" data-i18n-title="proModalTitleManage">Pro</button>
+        <div id="netStatusBadge" class="hdr-btn hdr-btn-net net-badge-compact online" title="Offline Ready" data-i18n-title="offlineSupported">
+          <svg class="wifi-svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M12 18.5a1.8 1.8 0 1 1 0 3.6 1.8 1.8 0 0 1 0-3.6zm-4.3-3.2a6.1 6.1 0 0 1 8.6 0 .9.9 0 0 0 1.3-1.3 7.9 7.9 0 0 0-11.2 0 .9.9 0 0 0 1.3 1.3zm-2.9-2.9a10.2 10.2 0 0 1 14.4 0 .9.9 0 0 0 1.3-1.3 12 12 0 0 0-17 0 .9.9 0 0 0 1.3 1.3zm-2.9-2.9a14.3 14.3 0 0 1 20.2 0 .9.9 0 0 0 1.3-1.3 16.1 16.1 0 0 0-22.8 0 .9.9 0 0 0 1.3 1.3z"/>
+          </svg>
+        </div>
+
+        <button type="button" class="hdr-btn" id="btnDarkMode" title="Toggle Theme" data-i18n-title="darkModeToggle">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+        </button>
+
+        <!-- Circular Flag Language Dropdown (Space-saving) -->
+        <div class="lang-dropdown-wrap">
+          <button type="button" class="hdr-btn lang-btn" id="btnLangDropdown" title="Language / 언어 선택" aria-label="Language Select">
+            <span id="currentFlagIcon" class="flag-icon-circle"></span>
+            <svg class="lang-caret" viewBox="0 0 10 6" width="8" height="6" fill="currentColor"><path d="M0 0l5 5 5-5z"/></svg>
+          </button>
+          <div id="langDropdownMenu" class="lang-dropdown-menu hidden">
+            <button type="button" class="lang-item" data-lang="ko">
+              <span class="flag-icon-circle" data-flag="ko"></span>
+              <span class="lang-name">한국어</span>
+              <span class="lang-code">KO</span>
+            </button>
+            <button type="button" class="lang-item" data-lang="en">
+              <span class="flag-icon-circle" data-flag="en"></span>
+              <span class="lang-name">English</span>
+              <span class="lang-code">EN</span>
+            </button>
+            <button type="button" class="lang-item" data-lang="zh">
+              <span class="flag-icon-circle" data-flag="zh"></span>
+              <span class="lang-name">中文</span>
+              <span class="lang-code">ZH</span>
+            </button>
+            <button type="button" class="lang-item" data-lang="ja">
+              <span class="flag-icon-circle" data-flag="ja"></span>
+              <span class="lang-name">日本語</span>
+              <span class="lang-code">JA</span>
+            </button>
+            <button type="button" class="lang-item" data-lang="es">
+              <span class="flag-icon-circle" data-flag="es"></span>
+              <span class="lang-name">Español</span>
+              <span class="lang-code">ES</span>
+            </button>
+          </div>
+        </div>
+
+        <button type="button" class="hdr-btn" id="btnManual" title="Manual" data-i18n-title="manualAndHelp">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
+        </button>
+      </div>
+    </div>
+    <!-- 기존 파란색 수평선 유지 -->
+    <div class="blue-divider"></div>
+  </header>
+
+  <!-- Modal Overlay -->
+  <div id="subPageModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <strong id="subPageTitle" class="modal-title" data-i18n="manualAndHelp">매뉴얼 및 안내</strong>
+        <button type="button" class="modal-close-btn" id="closeModalBtn" data-i18n="closeModal">✕ 닫기</button>
+      </div>
+      <div id="subPageBody" class="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <main class="main-container">
+    <div class="two-col-grid">
+
+      <!-- Left Column: Material, Shape, Dimensions -->
+      <div class="col-left">
+        <!-- 1. 강종 (재질) -->
+        <section class="outline-card" id="materialSelectCard">
+          <div class="card-header-row">
+            <h2 class="card-title" data-i18n="material">강종 (재질)</h2>
+            <span class="card-badge" id="matBadge">EN · KS 규격</span>
+          </div>
+          <div class="shape-dropdown-wrap">
+            <select id="materialSelectDropdown" class="shape-dropdown-select" aria-label="Material Select"></select>
+          </div>
+        </section>
+
+        <!-- 2. 형상 선택 -->
+        <section class="outline-card" id="shapeSelectCard">
+          <div class="card-header-row">
+            <h2 class="card-title" data-i18n="shape">형상</h2>
+            <span class="card-badge">10 Shapes</span>
+          </div>
+          <div class="shape-dropdown-wrap">
+            <select id="shapeSelectDropdown" class="shape-dropdown-select" aria-label="Shape Select"></select>
+          </div>
+        </section>
+
+        <!-- 3. 치수 안내 및 입력 -->
+        <section class="outline-card">
+          <div class="card-header-row">
+            <h2 class="card-title" data-i18n="inputGuide">치수 안내 및 입력</h2>
+            <span class="card-badge">M ⇄ mm</span>
+          </div>
+          <div class="dim-container">
+            <div id="diagramBox" class="diagram-box"></div>
+            <div id="dimFieldsGrid" class="dim-fields-grid"></div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right Column: Results, Rigging Selection, Crane, Records -->
+      <div class="col-right">
+        <!-- 4. 계산 결과 -->
+        <section class="outline-card">
+          <div class="card-header-row">
+            <h2 class="card-title" data-i18n="results">계산 결과</h2>
+          </div>
+          <div class="results-stack">
+            <div class="res-banner primary">
+              <div class="res-label-wrap">
+                <span class="res-label" data-i18n="weight">중량</span>
+                <span style="font-size:11px; font-weight:800; color:var(--text-muted);">(TON)</span>
+              </div>
+              <div class="res-val orange" id="resWeightTon">0.000</div>
+            </div>
+
+            <div class="res-banner">
+              <div class="res-label-wrap">
+                <span class="res-label" data-i18n="weight">중량</span>
+                <span style="font-size:11px; font-weight:800; color:var(--text-muted);">(KG)</span>
+              </div>
+              <div class="res-val green" id="resWeightKg">0.00</div>
+            </div>
+
+            <div class="res-banner">
+              <div class="res-label-wrap">
+                <span class="res-label" data-i18n="volume">부피</span>
+                <span style="font-size:11px; font-weight:800; color:var(--text-muted);">(M³)</span>
+              </div>
+              <div class="res-val blue" id="resVolume">0.000</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. 인양 기구 선정 기준 (SWL) -->
+        <section class="outline-card">
+          <div class="card-header-row">
+            <h2 class="card-title" data-i18n="liftingGuide">인양 기구 선정 기준 (SWL 기반)</h2>
+            <span class="card-badge" data-i18n="safetyFactor">법정 안전계수 적용</span>
+          </div>
+
+          <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:6px;" data-i18n="angleLabel">
+            인양 각도 (두줄걸이)
+          </div>
+          <div class="angle-toggle-group">
+            <button type="button" class="angle-btn" data-angle="0">0°</button>
+            <button type="button" class="angle-btn" data-angle="30">30°</button>
+            <button type="button" class="angle-btn active" data-angle="45">45°</button>
+            <button type="button" class="angle-btn" data-angle="60">60°</button>
+            <button type="button" class="angle-btn" data-angle="90">90°</button>
+            <button type="button" class="angle-btn" data-angle="120">120°</button>
+          </div>
+
+          <div id="angleWarnBox" class="angle-warn-box ok">
+            ✓ 권장 범위 (60° 이내)
+          </div>
+
+          <!-- 4 Gear Selection Cards -->
+          <div class="gear-grid">
+            <!-- Shackle -->
+            <div class="gear-card">
+              <div class="gear-header">
+                <span class="gear-title">🔗 <span data-i18n="shackle">샵클 / 훅</span></span>
+                <span class="gear-sf">SF 5</span>
+              </div>
+              <div class="gear-val" id="gearShackle">G209 13mm / 2t</div>
+              <div class="gear-footer">
+                <span id="gearShackleWll" class="gear-swl">SWL ≥ 2.00t</span>
+                <span>EN 13889</span>
+              </div>
+            </div>
+
+            <!-- Wire Rope -->
+            <div class="gear-card">
+              <div class="gear-header">
+                <span class="gear-title">➰ <span data-i18n="wireRope">와이어로프</span></span>
+                <span class="gear-sf">SF 5</span>
+              </div>
+              <div class="gear-val" id="gearWire">φ14mm / WLL 2.44t</div>
+              <div class="gear-footer">
+                <span id="gearWireWll" class="gear-swl">SWL ≥ 2.44t</span>
+                <span>EN 12385</span>
+              </div>
+            </div>
+
+            <!-- Chain Sling -->
+            <div class="gear-card">
+              <div class="gear-header">
+                <span class="gear-title">⛓ <span data-i18n="chainSling">체인 슬링</span></span>
+                <span class="gear-sf">SF 5</span>
+              </div>
+              <div class="gear-val" id="gearChain">G80 φ8mm / WLL 2.0t</div>
+              <div class="gear-footer">
+                <span id="gearChainWll" class="gear-swl">SWL ≥ 2.00t</span>
+                <span>EN 818-2</span>
+              </div>
+            </div>
+
+            <!-- Textile Sling -->
+            <div class="gear-card">
+              <div class="gear-header">
+                <span class="gear-title">🎗 <span data-i18n="textileSling">섬유 슬링벨트</span></span>
+                <span class="gear-sf">SF 7</span>
+              </div>
+              <div class="gear-val" id="gearTextile">2t Flat / WLL 2.0t</div>
+              <div class="gear-footer">
+                <span id="gearTextileWll" class="gear-swl">SWL ≥ 2.00t</span>
+                <span>EN 1492-1</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. 크레인 선정 -->
+        <section class="outline-card">
+          <div class="card-header-row">
+            <h2 class="card-title" data-i18n="crane">크레인 선정</h2>
+            <span class="card-badge" data-i18n="swlNote">SWL = 안전작업하중</span>
+          </div>
+          <div class="crane-toggle-group">
+            <button type="button" class="crane-btn active" data-crane="mobile" data-i18n="mobile">이동식 크레인</button>
+            <button type="button" class="crane-btn" data-crane="eot" data-i18n="eot">EOT 크레인</button>
+            <button type="button" class="crane-btn" data-crane="marine" data-i18n="marine">해양 크레인</button>
+          </div>
+          <div class="crane-result-box">
+            <div style="font-size:13px; font-weight:800; color:var(--text-muted);" data-i18n="craneSwl">필요 최소 SWL</div>
+            <div style="font-size:18px; font-weight:900; color:var(--brand-orange);" id="craneSwlVal">0.00 ton</div>
+          </div>
+        </section>
+
+        <!-- 6-1. 현장 안전 지침 (Safety Guidelines) -->
+        <section class="outline-card" id="safetyGuidelinesCard">
+          <div class="card-header-row">
+            <h2 class="card-title">
+              🛡️ <span data-i18n="safetyGuidelines">현장 안전 지침 (Safety Guidelines)</span>
+            </h2>
+            <span id="safetyBadge" class="card-badge" style="background:#fef2f2; color:#dc2626; border-color:#fecaca;" data-i18n="mandatoryRules">필수 확인 사항</span>
+          </div>
+
+          <div class="safety-guidelines-grid">
+            <div class="safety-rule-item">
+              <div class="rule-icon">⚡</div>
+              <div class="rule-content">
+                <strong data-i18n="rule1Title">1. 방호장치 점검</strong>
+                <p data-i18n="rule1Desc">권과방지·과부하방지·비상정지장치 작동 상태 점검</p>
+              </div>
+            </div>
+
+            <div class="safety-rule-item">
+              <div class="rule-icon">🔗</div>
+              <div class="rule-content">
+                <strong data-i18n="rule2Title">2. 줄걸이·샤클 체결</strong>
+                <p data-i18n="rule2Desc">샤클 분할핀(Split pin) 고정 및 훅 해지장치 확인</p>
+              </div>
+            </div>
+
+            <div class="safety-rule-item">
+              <div class="rule-icon">📐</div>
+              <div class="rule-content">
+                <strong data-i18n="rule3Title">3. 인양 각도 60° 준수</strong>
+                <p data-i18n="rule3Desc">두줄걸이 각도 60° 이내 유지 (90° 초과 시 작업 금지)</p>
+              </div>
+            </div>
+
+            <div class="safety-rule-item">
+              <div class="rule-icon">🚜</div>
+              <div class="rule-content">
+                <strong data-i18n="rule4Title">4. 지반 지지력 & 아웃트리거</strong>
+                <p data-i18n="rule4Desc">지반 침하 확인 및 아웃트리거 받침목(침목) 설치</p>
+              </div>
+            </div>
+
+            <div class="safety-rule-item">
+              <div class="rule-icon">🦺</div>
+              <div class="rule-content">
+                <strong data-i18n="rule5Title">5. 신호수 배치 & 통제구역</strong>
+                <p data-i18n="rule5Desc">유자격 신호수 배치 및 선회 반경 내 출입통제선 설치</p>
+              </div>
+            </div>
+
+            <div class="safety-rule-item">
+              <div class="rule-icon">⏱️</div>
+              <div class="rule-content">
+                <strong data-i18n="rule6Title">6. 시험 인양 (Trial Lift)</strong>
+                <p data-i18n="rule6Desc">지면 10~20cm 권상 후 무게중심 및 브레이크 제동 확인</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Free Version Lock Overlay -->
+          <div id="safetyLockOverlay" class="safety-lock-overlay">
+            <div class="safety-lock-content">
+              <div style="font-size:30px; margin-bottom:8px;">🔒</div>
+              <strong style="font-size:14.5px; color:var(--text-primary); display:block; margin-bottom:6px;" data-i18n="safetyLockedTitle">현장 안전 지침은 PRO 버전 전용 기능입니다</strong>
+              <p style="font-size:12px; color:var(--text-muted); max-width:340px; margin:0 auto 14px auto; line-height:1.5;" data-i18n="safetyLockedSub">크레인 인양 전 6대 필수 점검 수칙(방호장치, 줄걸이, 60° 각도 등)을 안전하게 관리하세요.</p>
+              <button type="button" class="btn-unlock-pro-inline" id="btnUnlockSafety">
+                ⭐ <span data-i18n="btnUnlockPro">PRO 버전으로 잠금 해제</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7. 인양작업계획서 (저장 데이터 위 배치) -->
+        <section class="outline-card" id="liftingPlanCard" style="border-color:#2563eb;">
+          <div class="card-header-row">
+            <h2 class="card-title" style="color:#2563eb;">
+              📄 <span data-i18n="planCardTitle">인양작업계획서</span>
+            </h2>
+            <span id="liftingPlanBadge" class="card-badge" style="background:#eff6ff; color:#2563eb; border-color:#bfdbfe;" data-i18n="planCardBadge">A4 법정 서식</span>
+          </div>
+          <div style="font-size:12.5px; color:var(--text-muted); line-height:1.55; margin-bottom:14px;" data-i18n="planCardDesc">
+            선택된 강종·형상 치수 및 인양 각도(SWL)에 따른 국가별 공식 인양작업계획서를 A4 규격 PDF로 출력 및 공유합니다.
+          </div>
+          <button type="button" class="action-btn" id="btnExportPlan" style="width:100%; height:44px; background-color:#2563eb; color:#fff; font-size:14.5px; font-weight:900;" title="Critical Lift Plan (PDF)">
+            📄 <span id="lblPlanBtnText">인양작업계획서 (PRO 🔒)</span>
+          </button>
+        </section>
+
+        <!-- 8. 저장 데이터 목록 -->
+        <section class="outline-card">
+          <div class="records-header">
+            <div style="font-size:15px; font-weight:800; display:flex; align-items:center; gap:6px;">
+              📁 <span data-i18n="savedList">저장 데이터</span>
+              <span id="recordsCount" style="color:var(--text-muted); font-size:12px;">(0/10)</span>
+            </div>
+            <div class="rec-actions">
+              <button type="button" class="rec-btn save" id="btnSave" title="Save Calculation">
+                💾 <span data-i18n="saveResult">저장</span>
+              </button>
+              <button type="button" class="rec-btn export" id="btnExportCSV">
+                📊 <span data-i18n="exportCSV">CSV 내보내기</span>
+              </button>
+              <button type="button" class="rec-btn delete" id="btnClearAll">
+                🗑 <span data-i18n="deleteAll">전체 삭제</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="records-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th data-i18n="savedAt">저장 시간</th>
+                  <th data-i18n="material">강종</th>
+                  <th data-i18n="shape">형상</th>
+                  <th style="text-align:right;">TON</th>
+                  <th style="text-align:right;">KG</th>
+                  <th data-i18n="angleLabel">인양 각도</th>
+                  <th data-i18n="riggingSummary">인양 기구 (SWL)</th>
+                  <th data-i18n="craneSummary">크레인 (SWL)</th>
+                  <th style="text-align:center;" data-i18n="actionCol">관리</th>
+                </tr>
+              </thead>
+              <tbody id="recordsTbody">
+                <tr><td colspan="10" class="empty-records" data-i18n="noSaved">저장된 데이터가 없습니다.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    Metal Weight & Lifting Assist v1.0 · ISKorea Solutions<br>
+    Copyright © 2026. All rights reserved.
+  </footer>
+
+  <!-- Modular Scripts -->
+  <script src="js/i18n.js"></script>
+  <script src="js/calculator.js"></script>
+  <script src="js/data_store.js"></script>
+  <script src="js/diagrams.js"></script>
+  <script src="js/help_manual.js"></script>
+  <script src="js/lifting_plan.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
