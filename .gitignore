@@ -1,0 +1,14 @@
+# WCL App Git Ignore Rules
+
+# 🚨 Security & Admin Files
+restricted/
+admin_keygen.html
+kakao_chatbot_gas.js
+
+# OS & Temp
+.DS_Store
+Thumbs.db
+*.tmp
+*.log
+.vscode/
+.idea/
