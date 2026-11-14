@@ -44,7 +44,7 @@ const App = {
       this.state.lang = savedLang;
     }
 
-    this.state.plan = DataStore.getPlan();
+    this.state.plan = (typeof LicenseManager !== "undefined") ? LicenseManager.syncSavedLicense() : DataStore.getPlan();
     this.state.records = DataStore.getRecords();
 
     // Restore last user selections if available
@@ -827,15 +827,15 @@ const App = {
 
       return `
         <tr data-id="${r.id}">
-          <td>${idx + 1}</td>
-          <td>${r.savedAt || "-"}</td>
-          <td><strong>${this.t(r.material)}</strong></td>
-          <td>${this.t(r.shape)}</td>
-          <td style="text-align:right; font-weight:800; color:var(--brand-orange);">${wTon} t</td>
-          <td style="text-align:right; font-weight:800; color:var(--pro-green);">${wKg} kg</td>
-          <td style="font-weight:800; color:#2563eb;">${angle}°</td>
-          <td style="font-size:12px; font-weight:700;">${gearBrief}</td>
-          <td style="font-size:12px; font-weight:800; color:#dc2626;">${craneTypeStr} (${craneSwl})</td>
+          <td class="rec-cell-idx"><span>#${idx + 1}</span><span class="rec-mobile-date">${r.savedAt || "-"}</span></td>
+          <td class="rec-cell-date" data-label="${this.t("savedAt")}">${r.savedAt || "-"}</td>
+          <td class="rec-cell-mat" data-label="${this.t("material")}"><strong>${this.t(r.material)}</strong></td>
+          <td class="rec-cell-shape" data-label="${this.t("shape")}">${this.t(r.shape)}</td>
+          <td class="rec-cell-ton" data-label="TON" style="text-align:right; font-weight:800; color:var(--brand-orange);">${wTon} t</td>
+          <td class="rec-cell-kg" data-label="KG" style="text-align:right; font-weight:800; color:var(--pro-green);">${wKg} kg</td>
+          <td class="rec-cell-angle" data-label="${this.t("angleLabel")}" style="font-weight:800; color:#2563eb;">${angle}°</td>
+          <td class="rec-cell-gear" data-label="${this.t("riggingSummary")}" style="font-size:12px; font-weight:700;">${gearBrief}</td>
+          <td class="rec-cell-crane" data-label="${this.t("craneSummary")}" style="font-size:12px; font-weight:800; color:#dc2626;">${craneTypeStr} (${craneSwl})</td>
           <td class="rec-action-cell" onclick="event.stopPropagation();">
             <button type="button" class="tbl-btn edit" data-action="edit" data-id="${r.id}" title="${this.t('editRecord')}">
               ✏️ ${this.t('edit')}
@@ -902,180 +902,185 @@ const App = {
 
     const title = this.t("editModalTitle");
     const shapeSpecs = WclCalc.getShapeDimensionSpecs(rec.shape);
+    const materials = WclCalc.MATERIAL_KEYS || ["carbon", "stainless", "aluminum", "copper"];
 
+    let editMaterial = rec.material || "carbon";
     let editDims = { ...rec.dims };
     let editQty = rec.qty || 1;
     let editAngle = rec.angle != null ? rec.angle : 0;
     let editCrane = rec.craneType || "mobile";
 
-    const renderModalBody = () => {
-      const calc = WclCalc.calculateWeightAndVolume(rec.shape, editDims, editQty, rec.material);
+    const computeEditCalc = () => {
+      const calc = WclCalc.calculateWeightAndVolume(rec.shape, editDims, editQty, editMaterial);
       const gear = WclCalc.calculateRiggingGear(calc.wKg, editAngle, editCrane, (typeof I18N !== "undefined" && I18N[this.state.lang]) || {});
+      return { calc, gear };
+    };
 
-      const dimInputsHtml = shapeSpecs.map(s => {
-        const val = editDims[s.key] != null ? editDims[s.key] : "";
-        const unit = s.key === "L" ? "M" : "mm";
-        return `
-          <div style="display:flex; flex-direction:column; gap:4px;">
-            <label style="font-size:12px; font-weight:800; color:var(--text-muted);">${this.t(s.labelKey)} (${unit})</label>
-            <input type="number" step="any" min="0" class="plan-setup-input edit-dim-inp" data-key="${s.key}" value="${val}" />
-          </div>
-        `;
-      }).join("");
+    const buildUpdatedPayload = () => {
+      const { calc, gear } = computeEditCalc();
+      return {
+        material: editMaterial,
+        dims: { ...editDims },
+        qty: editQty,
+        wKg: calc.wKg,
+        volMm3: calc.volMm3,
+        angle: editAngle,
+        effLoadTon: gear.effLoadTon,
+        craneType: editCrane,
+        gear: {
+          shackle: gear.shackle,
+          shackleWll: gear.shackleWll,
+          wireRope: gear.wireRope,
+          chainSling: gear.chainSling,
+          textileSling: gear.textileSling,
+          craneType: editCrane,
+          craneSwl: gear.craneSwl,
+          craneFactor: gear.craneFactor
+        }
+      };
+    };
 
+    const { calc: initCalc, gear: initGear } = computeEditCalc();
+
+    const dimInputsHtml = shapeSpecs.map(s => {
+      const val = editDims[s.key] != null ? editDims[s.key] : "";
+      const unit = s.key === "L" ? "M" : "mm";
       return `
-        <div style="display:flex; flex-direction:column; gap:16px;">
-          <!-- Target Info Header -->
-          <div style="background:var(--bg-soft); border:1px solid var(--border-light); border-radius:10px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <div style="font-size:11px; font-weight:700; color:var(--text-muted);">${this.t("material")} / ${this.t("shape")}</div>
-              <strong style="font-size:14.5px; color:var(--brand-orange);">${this.t(rec.material)} · ${this.t(rec.shape)}</strong>
-            </div>
-            <div style="text-align:right;">
-              <div style="font-size:11px; font-weight:700; color:var(--text-muted);">${this.t("savedAt")}</div>
-              <div style="font-size:12px; font-weight:700;">${rec.savedAt || "-"}</div>
-            </div>
-          </div>
-
-          <!-- Qty and Dimensions -->
-          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap:10px;">
-            <div style="display:flex; flex-direction:column; gap:4px;">
-              <label style="font-size:12px; font-weight:800; color:var(--text-muted);">${this.t("qty")}</label>
-              <input type="number" min="1" step="1" id="editQtyInp" class="plan-setup-input" value="${editQty}" />
-            </div>
-            ${dimInputsHtml}
-          </div>
-
-          <!-- Angle & Crane -->
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-            <div style="display:flex; flex-direction:column; gap:6px;">
-              <label style="font-size:12px; font-weight:800; color:var(--text-muted);">${this.t("angleLabel")}</label>
-              <select id="editAngleSel" class="plan-setup-input" style="height:38px;">
-                ${[0, 30, 45, 60, 90, 120].map(a => `<option value="${a}" ${a === editAngle ? "selected" : ""}>${a}°</option>`).join("")}
-              </select>
-            </div>
-            <div style="display:flex; flex-direction:column; gap:6px;">
-              <label style="font-size:12px; font-weight:800; color:var(--text-muted);">${this.t("crane")}</label>
-              <select id="editCraneSel" class="plan-setup-input" style="height:38px;">
-                <option value="mobile" ${editCrane === "mobile" ? "selected" : ""}>${this.t("mobile")}</option>
-                <option value="eot" ${editCrane === "eot" ? "selected" : ""}>${this.t("eot")}</option>
-                <option value="marine" ${editCrane === "marine" ? "selected" : ""}>${this.t("marine")}</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Live Recalculated Summary Banner -->
-          <div style="background:#eff6ff; border:1.5px solid #bfdbfe; border-radius:10px; padding:12px 16px; display:grid; grid-template-columns: repeat(3, 1fr); text-align:center; gap:8px;">
-            <div>
-              <div style="font-size:11px; font-weight:800; color:#1e40af;">TON</div>
-              <div style="font-size:17px; font-weight:900; color:#1e3a8a;">${(calc.wTon || 0).toFixed(3)} t</div>
-            </div>
-            <div>
-              <div style="font-size:11px; font-weight:800; color:#15803d;">KG</div>
-              <div style="font-size:17px; font-weight:900; color:#16a34a;">${(calc.wKg || 0).toLocaleString()} kg</div>
-            </div>
-            <div>
-              <div style="font-size:11px; font-weight:800; color:#b91c1c;">MIN SWL</div>
-              <div style="font-size:17px; font-weight:900; color:#dc2626;">${gear.craneSwl} t</div>
-            </div>
-          </div>
-
-          <!-- Buttons -->
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:4px;">
-            <button type="button" id="btnSaveEditedRecord" class="plan-gen-btn" style="height:44px; background:#2563eb;">
-              ${this.t("saveChanges")}
-            </button>
-            <button type="button" id="btnLoadEditedToCalc" class="plan-gen-btn" style="height:44px; background:var(--brand-orange);">
-              📥 ${this.t("loadToCalc")}
-            </button>
-          </div>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <label style="font-size:12px; font-weight:800; color:var(--text-muted);">${this.t(s.labelKey)} (${unit})</label>
+          <input type="number" step="any" min="0" class="plan-setup-input edit-dim-inp" data-key="${s.key}" value="${val}" />
         </div>
       `;
+    }).join("");
+
+    const bodyHtml = `
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <!-- Target Info Header -->
+        <div style="background:var(--bg-soft); border:1px solid var(--border-light); border-radius:10px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+          <div>
+            <div style="font-size:11px; font-weight:700; color:var(--text-muted);">${this.t("shape")}</div>
+            <strong style="font-size:14.5px; color:var(--brand-orange);">${this.t(rec.shape)}</strong>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px; font-weight:700; color:var(--text-muted);">${this.t("savedAt")}</div>
+            <div style="font-size:12px; font-weight:700;">${rec.savedAt || "-"}</div>
+          </div>
+        </div>
+
+        <!-- Material & Qty -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:12px; font-weight:800; color:var(--text-muted);">${this.t("material")}</label>
+            <select id="editMaterialSel" class="plan-setup-input" style="height:38px;">
+              ${materials.map(m => `<option value="${m}" ${m === editMaterial ? "selected" : ""}>${this.t(m)}</option>`).join("")}
+            </select>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:12px; font-weight:800; color:var(--text-muted);">${this.t("qty")}</label>
+            <input type="number" min="1" step="1" id="editQtyInp" class="plan-setup-input" value="${editQty}" />
+          </div>
+        </div>
+
+        <!-- Dimensions -->
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap:10px;">
+          ${dimInputsHtml}
+        </div>
+
+        <!-- Angle & Crane -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label style="font-size:12px; font-weight:800; color:var(--text-muted);">${this.t("angleLabel")}</label>
+            <select id="editAngleSel" class="plan-setup-input" style="height:38px;">
+              ${[0, 30, 45, 60, 90, 120].map(a => `<option value="${a}" ${a === editAngle ? "selected" : ""}>${a}°</option>`).join("")}
+            </select>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label style="font-size:12px; font-weight:800; color:var(--text-muted);">${this.t("crane")}</label>
+            <select id="editCraneSel" class="plan-setup-input" style="height:38px;">
+              <option value="mobile" ${editCrane === "mobile" ? "selected" : ""}>${this.t("mobile")}</option>
+              <option value="eot" ${editCrane === "eot" ? "selected" : ""}>${this.t("eot")}</option>
+              <option value="marine" ${editCrane === "marine" ? "selected" : ""}>${this.t("marine")}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Live Recalculated Summary Banner -->
+        <div style="background:var(--bg-soft); border:1.5px solid var(--border-light); border-radius:10px; padding:12px 16px; display:grid; grid-template-columns: repeat(3, 1fr); text-align:center; gap:8px;">
+          <div>
+            <div style="font-size:11px; font-weight:800; color:var(--brand-orange);">TON</div>
+            <div id="editSummaryTon" style="font-size:16px; font-weight:900; color:var(--brand-orange);">${(initCalc.wTon || 0).toFixed(3)} t</div>
+          </div>
+          <div>
+            <div style="font-size:11px; font-weight:800; color:var(--pro-green);">KG</div>
+            <div id="editSummaryKg" style="font-size:16px; font-weight:900; color:var(--pro-green);">${(initCalc.wKg || 0).toLocaleString()} kg</div>
+          </div>
+          <div>
+            <div style="font-size:11px; font-weight:800; color:#dc2626;">MIN SWL</div>
+            <div id="editSummarySwl" style="font-size:16px; font-weight:900; color:#dc2626;">${initGear.craneSwl} t</div>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:4px;">
+          <button type="button" id="btnSaveEditedRecord" class="plan-gen-btn" style="height:44px; background:#2563eb;">
+            ${this.t("saveChanges")}
+          </button>
+          <button type="button" id="btnLoadEditedToCalc" class="plan-gen-btn" style="height:44px; background:var(--brand-orange);">
+            📥 ${this.t("loadToCalc")}
+          </button>
+        </div>
+      </div>
+    `;
+
+    this.openModal(title, bodyHtml);
+
+    const container = document.getElementById("subPageBody");
+    if (!container) return;
+
+    const syncInputsAndSummary = () => {
+      editMaterial = document.getElementById("editMaterialSel")?.value || editMaterial;
+      const qtyVal = parseInt(document.getElementById("editQtyInp")?.value, 10);
+      editQty = !isNaN(qtyVal) && qtyVal > 0 ? qtyVal : 1;
+      container.querySelectorAll(".edit-dim-inp").forEach(inp => {
+        const k = inp.getAttribute("data-key");
+        const v = parseFloat(inp.value);
+        editDims[k] = !isNaN(v) ? v : 0;
+      });
+      editAngle = parseInt(document.getElementById("editAngleSel")?.value, 10) || 0;
+      editCrane = document.getElementById("editCraneSel")?.value || "mobile";
+
+      const { calc, gear } = computeEditCalc();
+      const tonEl = document.getElementById("editSummaryTon");
+      const kgEl = document.getElementById("editSummaryKg");
+      const swlEl = document.getElementById("editSummarySwl");
+      if (tonEl) tonEl.textContent = `${(calc.wTon || 0).toFixed(3)} t`;
+      if (kgEl) kgEl.textContent = `${(calc.wKg || 0).toLocaleString()} kg`;
+      if (swlEl) swlEl.textContent = `${gear.craneSwl} t`;
     };
 
-    this.openModal(title, renderModalBody());
+    container.querySelectorAll(".edit-dim-inp, #editQtyInp").forEach(inp => {
+      inp.addEventListener("input", syncInputsAndSummary);
+    });
+    document.getElementById("editMaterialSel")?.addEventListener("change", syncInputsAndSummary);
+    document.getElementById("editAngleSel")?.addEventListener("change", syncInputsAndSummary);
+    document.getElementById("editCraneSel")?.addEventListener("change", syncInputsAndSummary);
 
-    const bindModalEvents = () => {
-      const container = document.getElementById("subPageBody");
-      if (!container) return;
+    document.getElementById("btnSaveEditedRecord")?.addEventListener("click", () => {
+      syncInputsAndSummary();
+      DataStore.updateRecord(id, buildUpdatedPayload());
+      this.state.records = DataStore.getRecords();
+      this.renderRecordsTable();
+      this.closeModal();
+    });
 
-      const refreshSummary = () => {
-        const qtyVal = parseInt(document.getElementById("editQtyInp")?.value, 10);
-        editQty = !isNaN(qtyVal) && qtyVal > 0 ? qtyVal : 1;
-        container.querySelectorAll(".edit-dim-inp").forEach(inp => {
-          const k = inp.getAttribute("data-key");
-          const v = parseFloat(inp.value);
-          editDims[k] = !isNaN(v) ? v : 0;
-        });
-        editAngle = parseInt(document.getElementById("editAngleSel")?.value, 10) || 0;
-        editCrane = document.getElementById("editCraneSel")?.value || "mobile";
-        container.innerHTML = renderModalBody();
-        bindModalEvents();
-      };
-
-      container.querySelectorAll(".edit-dim-inp, #editQtyInp").forEach(inp => {
-        inp.addEventListener("change", refreshSummary);
-      });
-
-      document.getElementById("editAngleSel")?.addEventListener("change", refreshSummary);
-      document.getElementById("editCraneSel")?.addEventListener("change", refreshSummary);
-
-      document.getElementById("btnSaveEditedRecord")?.addEventListener("click", () => {
-        const calc = WclCalc.calculateWeightAndVolume(rec.shape, editDims, editQty, rec.material);
-        const gear = WclCalc.calculateRiggingGear(calc.wKg, editAngle, editCrane, (typeof I18N !== "undefined" && I18N[this.state.lang]) || {});
-        DataStore.updateRecord(id, {
-          dims: { ...editDims },
-          qty: editQty,
-          wKg: calc.wKg,
-          volMm3: calc.volMm3,
-          angle: editAngle,
-          effLoadTon: gear.effLoadTon,
-          craneType: editCrane,
-          gear: {
-            shackle: gear.shackle,
-            shackleWll: gear.shackleWll,
-            wireRope: gear.wireRope,
-            chainSling: gear.chainSling,
-            textileSling: gear.textileSling,
-            craneType: editCrane,
-            craneSwl: gear.craneSwl,
-            craneFactor: gear.craneFactor
-          }
-        });
-        this.state.records = DataStore.getRecords();
-        this.renderRecordsTable();
-        this.closeModal();
-      });
-
-      document.getElementById("btnLoadEditedToCalc")?.addEventListener("click", () => {
-        const calc = WclCalc.calculateWeightAndVolume(rec.shape, editDims, editQty, rec.material);
-        const gear = WclCalc.calculateRiggingGear(calc.wKg, editAngle, editCrane, (typeof I18N !== "undefined" && I18N[this.state.lang]) || {});
-        DataStore.updateRecord(id, {
-          dims: { ...editDims },
-          qty: editQty,
-          wKg: calc.wKg,
-          volMm3: calc.volMm3,
-          angle: editAngle,
-          effLoadTon: gear.effLoadTon,
-          craneType: editCrane,
-          gear: {
-            shackle: gear.shackle,
-            shackleWll: gear.shackleWll,
-            wireRope: gear.wireRope,
-            chainSling: gear.chainSling,
-            textileSling: gear.textileSling,
-            craneType: editCrane,
-            craneSwl: gear.craneSwl,
-            craneFactor: gear.craneFactor
-          }
-        });
-        this.state.records = DataStore.getRecords();
-        this.loadRecordToCalculator(id);
-        this.closeModal();
-      });
-    };
-
-    bindModalEvents();
+    document.getElementById("btnLoadEditedToCalc")?.addEventListener("click", () => {
+      syncInputsAndSummary();
+      DataStore.updateRecord(id, buildUpdatedPayload());
+      this.state.records = DataStore.getRecords();
+      this.renderRecordsTable();
+      this.loadRecordToCalculator(id);
+      this.closeModal();
+    });
   },
 
   handleExportLiftingPlan() {
@@ -1320,50 +1325,183 @@ const App = {
       </div>`;
     }
 
+    const savedLic = (typeof LicenseManager !== "undefined") ? LicenseManager.getSavedLicense() : null;
+    const devCode = (typeof LicenseManager !== "undefined") ? LicenseManager.getDeviceCode() : "00000";
+    const prevName = savedLic && savedLic.name ? savedLic.name.replace(/"/g, "&quot;") : "";
+    const prevCode = savedLic && savedLic.code ? savedLic.code.replace(/"/g, "&quot;") : "";
+
+    const activeBanner = isPro ? `
+      <div style="background:#ebfbee; border:1.5px solid #38d9a9; border-radius:10px; padding:10px 12px; font-size:12.5px; font-weight:800; color:#087f5b; margin-bottom:14px; text-align:left;">
+        ${this.t("proActiveBanner").replace("{dev}", devCode)}
+      </div>` : "";
+
     const body = `
-      <div style="text-align:center; padding: 10px 0;">
-        <div style="font-size:38px; margin-bottom:10px;">⭐</div>
-        <h3 style="font-size:18px; font-weight:900; margin-bottom:8px;">${title}</h3>
+      <div style="padding: 4px 0; text-align:left;">
         ${subNotice}
-        <div style="background:var(--bg-soft); border:1px solid var(--border-light); border-radius:10px; padding:14px; text-align:left; font-size:12.5px; line-height:1.6; margin-bottom:18px;">
+        ${activeBanner}
+        <div style="background:var(--bg-soft); border:1px solid var(--border-light); border-radius:10px; padding:12px 14px; font-size:12.5px; line-height:1.6; margin-bottom:14px;">
           <strong style="color:var(--brand-orange);">${this.t("proModalBenefitsTitle")}</strong><br>
           ${this.t("proModalBenefit1")}<br>
           ${this.t("proModalBenefit2")}<br>
           ${this.t("proModalBenefit3")}
         </div>
-        <button type="button" id="btnToggleProPlan" style="width:100%; height:46px; border:none; border-radius:8px; background:var(--brand-orange); color:#fff; font-size:15px; font-weight:900; cursor:pointer; transition:all 0.15s ease;">
-          ${isPro ? this.t("proModalBtnFree") : this.t("proModalBtnActivate")}
-        </button>
+
+        <div style="background:#e7f5ff; border:1.5px solid #74c0fc; border-radius:12px; padding:12px 14px; margin-bottom:12px;">
+          <div style="font-size:13px; font-weight:900; color:#1864ab; margin-bottom:8px;">📧 ${this.t("proStep1Title")}</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+            <div>
+              <label style="display:block; font-size:11px; font-weight:800; color:#495057; margin-bottom:4px;">${this.t("proStep1Dev")}</label>
+              <input type="text" value="${devCode}" readonly style="width:100%; padding:9px; font-family:monospace; font-size:15px; font-weight:900; color:var(--brand-orange); background:#f8f9fa; border:1.5px solid #ced4da; border-radius:8px; text-align:center; box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="display:block; font-size:11px; font-weight:800; color:#495057; margin-bottom:4px;">${this.t("proStep1Name")} <span style="color:#e03131;">*</span></label>
+              <input type="text" id="wclProRegName" value="${prevName}" placeholder="${this.t("proStep1NamePh")}" style="width:100%; padding:9px; font-size:13px; font-weight:700; border:1.5px solid #adb5bd; border-radius:8px; background:#fff; color:#111; box-sizing:border-box;">
+            </div>
+          </div>
+          <label style="display:block; font-size:11px; font-weight:800; color:#495057; margin-bottom:4px;">${this.t("proStep1Email")} <span style="color:#e03131;">*</span></label>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <input type="email" id="wclEmailApplyInput" placeholder="${this.t("proStep1EmailPh")}" style="flex:1; min-width:170px; padding:9px 10px; font-size:13px; font-weight:700; border:1.5px solid #adb5bd; border-radius:8px; background:#fff; color:#111; box-sizing:border-box;">
+            <button type="button" id="wclBtnApplyEmail" style="background:#1864ab; color:#fff; border:none; border-radius:8px; padding:9px 14px; font-size:12.5px; font-weight:900; cursor:pointer; white-space:nowrap;">${this.t("proStep1BtnGet")}</button>
+          </div>
+          <div id="wclEmailApplyStatus" style="margin-top:8px; font-size:11.5px; color:#495057; line-height:1.5;">
+            ${this.t("proStep1Guide")}<br>
+            <span style="color:#e03131; font-weight:700;">${this.t("proStep1Spam")}</span>
+          </div>
+        </div>
+
+        <div style="border:1.5px solid var(--border-light); border-radius:12px; padding:12px 14px; margin-bottom:12px; background:var(--bg-card);">
+          <div style="font-size:13px; font-weight:900; margin-bottom:8px;">${this.t("proStep2Title")}</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+            <a href="https://qr.kakaopay.com/FLfFztgIX" target="_blank" rel="noopener" style="display:flex; align-items:center; justify-content:center; background:#FEE500; color:#191919; text-decoration:none; padding:10px 8px; border-radius:8px; font-size:12.5px; font-weight:900; border:1.5px solid #e6cf00;">${this.t("proStep2Kakao")}</a>
+            <a href="https://buymeacoffee.com/iskorea" target="_blank" rel="noopener" style="display:flex; align-items:center; justify-content:center; background:#FFDD00; color:#000000; text-decoration:none; padding:10px 8px; border-radius:8px; font-size:12.5px; font-weight:900; border:1.5px solid #ebd000;">${this.t("proStep2Bmac")}</a>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-soft); padding:7px 10px; border-radius:8px; font-size:11.5px;">
+            <span>${this.t("proStep2Inquiry")}</span>
+            <a href="https://pf.kakao.com/_hALxeX" target="_blank" rel="noopener" style="color:var(--brand-orange); font-weight:800; text-decoration:underline;">${this.t("proStep2Chat")}</a>
+          </div>
+        </div>
+
+        <div style="background:var(--bg-soft); border:1.5px solid var(--border-light); border-radius:12px; padding:12px 14px;">
+          <div style="font-size:13px; font-weight:900; margin-bottom:4px;">${this.t("proStep3Title")}</div>
+          <div style="font-size:11.5px; opacity:0.8; margin-bottom:8px;">${this.t("proStep3Desc")}</div>
+          <input type="text" id="wclProRegCode" value="${prevCode}" placeholder="WCL-${devCode}-XXXXX-XXXXX" oninput="this.value=this.value.toUpperCase()" style="width:100%; font-family:monospace; font-weight:900; font-size:14px; letter-spacing:1.2px; text-align:center; color:#065f46; background:#fff; padding:10px; border:1.5px solid #adb5bd; border-radius:8px; box-sizing:border-box; margin-bottom:10px;">
+          <button type="button" id="wclBtnVerifyPro" style="width:100%; height:44px; border:none; border-radius:8px; background:var(--brand-orange); color:#fff; font-size:14px; font-weight:900; cursor:pointer;">${this.t("proModalBtnActivate")}</button>
+          <div id="wclProAuthMessage" style="margin-top:8px; font-size:12.5px; font-weight:800; text-align:center;"></div>
+        </div>
       </div>
     `;
     this.openModal(title, body);
 
-    document.getElementById("btnToggleProPlan")?.addEventListener("click", () => {
-      const next = this.state.plan === "pro" ? "free" : "pro";
-      this.state.plan = next;
-      DataStore.setPlan(next);
-      this.updatePlanBadge();
-      this.renderRecordsTable();
-      this.closeModal();
-      if (next === "pro") {
-        if (context === "PDF_PLAN") {
-          this.handleExportLiftingPlan();
-        }
+    document.getElementById("wclBtnApplyEmail")?.addEventListener("click", () => {
+      if (typeof LicenseManager !== "undefined") {
+        LicenseManager.applyByEmail((k) => this.t(k));
+      }
+    });
+
+    document.getElementById("wclBtnVerifyPro")?.addEventListener("click", () => {
+      if (typeof LicenseManager === "undefined") return;
+      const res = LicenseManager.verifyAndActivate((k) => this.t(k));
+      if (res.ok) {
+        this.state.plan = res.plan;
+        this.updatePlanBadge();
+        this.renderRecordsTable();
+        setTimeout(() => {
+          this.closeModal();
+          if (res.plan === "pro" && context === "PDF_PLAN") {
+            this.handleExportLiftingPlan();
+          }
+        }, 650);
       }
     });
   },
 
   openManualModal() {
+    const isPro = this.state.plan === "pro";
+    const lang = this.state.lang;
+    const t = (k) => this.t(k);
+
+    let proGuideHtml = "";
+    if (!isPro) {
+      proGuideHtml = `
+        <div class="manual-pro-guide-card">
+          <div class="manual-pro-header">
+            <div class="manual-pro-badge">${t("proGuideBadge")}</div>
+            <h3 class="manual-pro-title">${t("proGuideTitle")}</h3>
+            <p class="manual-pro-desc">${t("proGuideDesc")}</p>
+          </div>
+
+          <div class="manual-pro-features-grid">
+            <div class="manual-pro-feat-item">
+              <div class="manual-pro-feat-title">${t("proFeat1Title")}</div>
+              <div class="manual-pro-feat-desc">${t("proFeat1Desc")}</div>
+            </div>
+            <div class="manual-pro-feat-item">
+              <div class="manual-pro-feat-title">${t("proFeat2Title")}</div>
+              <div class="manual-pro-feat-desc">${t("proFeat2Desc")}</div>
+            </div>
+            <div class="manual-pro-feat-item">
+              <div class="manual-pro-feat-title">${t("proFeat3Title")}</div>
+              <div class="manual-pro-feat-desc">${t("proFeat3Desc")}</div>
+            </div>
+          </div>
+
+          <div class="manual-pro-sample-wrap">
+            <div class="manual-pro-sample-header">
+              <div class="manual-pro-sample-title">${t("proPlanSampleTitle")}</div>
+              <div class="manual-pro-sample-sub">${t("proPlanSampleSub")}</div>
+            </div>
+            <div class="manual-pro-sample-img-box" onclick="window.App.openImagePreview('icons/sample_plan_${lang}.png')">
+              <img src="icons/sample_plan_${lang}.png" alt="Sample Plan (${lang})" class="manual-pro-sample-img" />
+              <div class="manual-pro-img-overlay">
+                <span>${t("proSampleClickZoom")}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="manual-pro-cta-wrap">
+            <button type="button" class="btn-pro-activate-cta" onclick="window.App.openUpgradeModal('MANUAL')">
+              ${t("proUpgradeBtn")}
+            </button>
+          </div>
+        </div>
+      `;
+    } else {
+      proGuideHtml = `
+        <div class="manual-pro-active-banner">
+          <div class="pro-active-badge">👑 PRO ACTIVE</div>
+          <div class="pro-active-title">${lang === "ko" ? "PRO 라이선스 활성화 상태입니다" : "PRO License is Active"}</div>
+          <div class="pro-active-desc">${lang === "ko" ? "데이터 무제한 저장·편집, 현장 안전 지침 상시 노출, A4 법정 인양작업계획서(PDF 출력 및 1초 공유) 기능이 모두 활성화되어 있습니다." : "Unlimited storage & editing, full safety guidelines, and A4 certified critical lift plan generator are fully unlocked."}</div>
+        </div>
+      `;
+    }
+
     const sections = HelpManual.getSections(this.state.lang);
 
-    const html = sections.map(s => `
+    const manualHtml = sections.map(s => `
       <div class="manual-sec">
         <div class="manual-sec-title ${s.isWarning ? "warning" : ""}">${s.title}</div>
         <div class="manual-sec-body ${s.isWarning ? "warning" : ""}">${s.body}</div>
       </div>
     `).join("");
 
-    this.openModal(this.t("manualTitle"), html);
+    this.openModal(this.t("manualTitle"), proGuideHtml + manualHtml);
+  },
+
+  openImagePreview(src) {
+    const modal = document.getElementById("subPageModal");
+    if (!modal) return;
+    const overlayHtml = `
+      <div class="img-lightbox-wrap">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+          <span style="font-size:13px; font-weight:800; color:var(--text-primary);">${this.t("proPlanSampleTitle")}</span>
+          <button type="button" class="btn-secondary" style="padding:5px 12px; font-size:12px; border-radius:6px; cursor:pointer;" onclick="window.App.openManualModal()">← ${this.t("close") || "설명서로 돌아가기"}</button>
+        </div>
+        <div style="border:1.5px solid #94a3b8; border-radius:8px; overflow:hidden; background:#fff; box-shadow:0 6px 20px rgba(0,0,0,0.15);">
+          <img src="${src}" alt="Plan Preview" style="display:block; width:100%; height:auto;" />
+        </div>
+      </div>
+    `;
+    this.openModal(this.t("proPlanSampleTitle"), overlayHtml);
   },
 
   openModal(title, contentHtml) {
