@@ -429,5 +429,11 @@
   <script src="js/lifting_plan.js?v=20261114"></script>
   <script src="js/license.js?v=20261114"></script>
   <script src="js/main.js?v=20261114"></script>
+<script>
+if (!sessionStorage.getItem('iskHit_wcl')) {
+  sessionStorage.setItem('iskHit_wcl', '1');
+  fetch('https://stats.iskorea.org/hit?app=wcl', { method: 'POST', keepalive: true }).catch(() => {});
+}
+</script>
 </body>
 </html>
