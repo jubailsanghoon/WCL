@@ -1372,7 +1372,7 @@ const App = {
         <div style="border:1.5px solid var(--border-light); border-radius:12px; padding:12px 14px; margin-bottom:12px; background:var(--bg-card);">
           <div style="font-size:13px; font-weight:900; margin-bottom:8px;">${this.t("proStep2Title")}</div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
-            <a href="https://qr.kakaopay.com/FLfFztgIX" target="_blank" rel="noopener" style="display:flex; align-items:center; justify-content:center; background:#FEE500; color:#191919; text-decoration:none; padding:10px 8px; border-radius:8px; font-size:12.5px; font-weight:900; border:1.5px solid #e6cf00;">${this.t("proStep2Kakao")}</a>
+            <a href="https://qr.kakaopay.com/FLfFztgIX5dc01361" target="_blank" rel="noopener" style="display:flex; align-items:center; justify-content:center; background:#FEE500; color:#191919; text-decoration:none; padding:10px 8px; border-radius:8px; font-size:12.5px; font-weight:900; border:1.5px solid #e6cf00;">${this.t("proStep2Kakao")}</a>
             <a href="https://buymeacoffee.com/iskorea" target="_blank" rel="noopener" style="display:flex; align-items:center; justify-content:center; background:#FFDD00; color:#000000; text-decoration:none; padding:10px 8px; border-radius:8px; font-size:12.5px; font-weight:900; border:1.5px solid #ebd000;">${this.t("proStep2Bmac")}</a>
           </div>
           <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-soft); padding:7px 10px; border-radius:8px; font-size:11.5px;">
