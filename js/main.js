@@ -1377,7 +1377,7 @@ const App = {
           </div>
           <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-soft); padding:7px 10px; border-radius:8px; font-size:11.5px;">
             <span>${this.t("proStep2Inquiry")}</span>
-            <a href="https://pf.kakao.com/_hALxeX" target="_blank" rel="noopener" style="color:var(--brand-orange); font-weight:800; text-decoration:underline;">${this.t("proStep2Chat")}</a>
+            <a href="https://pf.kakao.com/_hALxeX/chat" target="_blank" rel="noopener" style="color:var(--brand-orange); font-weight:800; text-decoration:underline;">${this.t("proStep2Chat")}</a>
           </div>
         </div>
 
