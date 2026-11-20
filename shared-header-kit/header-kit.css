@@ -1,0 +1,428 @@
+/**
+ * ============================================================================
+ * Standard App Header Component Kit (디자인 시스템 표준 헤더 킷)
+ * ============================================================================
+ * - 브랜드 로고 & 전체/축약 반응형 타이틀
+ * - 우측 일원화 컨트롤: [v1.0 버전] [Pro/Free 라이선스] [WiFi 통신] [다크모드] [원형국기 언어] [도움말]
+ * - 모바일/태블릿 반응형 자동 최적화 (768px / 380px 브레이크포인트)
+ * - 라이트 / 다크 테마 완전 연동
+ * ============================================================================
+ */
+
+:root {
+  /* Colors - Light Theme */
+  --hdr-bg-body: #f8fafc;
+  --hdr-bg-header: rgba(255, 255, 255, 0.95);
+  --hdr-border: #e2e8f0;
+  --hdr-text-primary: #0f172a;
+  --hdr-text-secondary: #475569;
+  --hdr-text-muted: #64748b;
+  --hdr-bg-card: #ffffff;
+  --hdr-bg-soft: #f1f5f9;
+  --hdr-primary: #2563eb;
+  --hdr-success: #059669;
+  --hdr-success-bg: rgba(16, 185, 129, 0.1);
+  --hdr-success-border: rgba(16, 185, 129, 0.45);
+  --hdr-wifi-blue: #4686b8;
+  --hdr-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --hdr-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+html.dark {
+  /* Colors - Dark Theme */
+  --hdr-bg-body: #090d16;
+  --hdr-bg-header: rgba(15, 23, 42, 0.95);
+  --hdr-border: #334155;
+  --hdr-text-primary: #f8fafc;
+  --hdr-text-secondary: #cbd5e1;
+  --hdr-text-muted: #94a3b8;
+  --hdr-bg-card: #1e293b;
+  --hdr-bg-soft: #0f172a;
+  --hdr-primary: #3b82f6;
+  --hdr-success: #34d399;
+  --hdr-success-bg: rgba(52, 211, 153, 0.15);
+  --hdr-success-border: rgba(52, 211, 153, 0.5);
+  --hdr-wifi-blue: #60a5fa;
+  --hdr-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --hdr-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* ===================================================
+   TOP HEADER STRUCTURE
+   =================================================== */
+.top-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  background: var(--hdr-bg-header);
+  border-bottom: 1px solid var(--hdr-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.header-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ===================================================
+   LEFT: BRAND WRAP (Logo + Full/Short Title)
+   =================================================== */
+.brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+.app-logo-box {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.brand-wrap:hover .app-logo-box {
+  transform: scale(1.05);
+}
+
+.app-logo-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.brand-text {
+  min-width: 0;
+}
+
+.brand-text h1 {
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+  color: var(--hdr-text-primary);
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* Full & Short title responsive toggles */
+.brand-text .title-full {
+  display: inline;
+}
+
+.brand-text .title-short {
+  display: none;
+}
+
+/* ===================================================
+   RIGHT: UNIFIED HEADER ACTIONS
+   =================================================== */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Base button style (All controls share unified size & borders) */
+.hdr-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--hdr-border);
+  background: var(--hdr-bg-soft);
+  color: var(--hdr-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.hdr-btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--hdr-primary);
+  color: var(--hdr-primary);
+  background: var(--hdr-bg-card);
+}
+
+/* 1. Version Badge (v1.0) */
+.hdr-btn-ver {
+  width: auto;
+  min-width: 38px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  color: var(--hdr-text-muted);
+  cursor: default;
+}
+
+.hdr-btn-ver:hover {
+  border-color: var(--hdr-text-secondary);
+  color: var(--hdr-text-primary);
+}
+
+/* 2. License Badge (Pro / Free) */
+.hdr-btn-pro {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  color: var(--hdr-text-muted);
+}
+
+.hdr-btn-pro.is-pro {
+  color: var(--hdr-success);
+  border-color: var(--hdr-success-border);
+  background: var(--hdr-success-bg);
+}
+
+.hdr-btn-pro:hover {
+  border-color: var(--hdr-success);
+  color: var(--hdr-success);
+  background: var(--hdr-success-bg);
+}
+
+/* 3. WiFi Status Badge */
+.hdr-btn-net .wifi-svg {
+  width: 20px;
+  height: 20px;
+  color: var(--hdr-wifi-blue);
+  transition: color 0.2s, opacity 0.2s;
+}
+
+.hdr-btn-net.offline .wifi-svg {
+  color: var(--hdr-text-muted);
+  opacity: 0.35;
+}
+
+.hdr-btn-net:hover {
+  border-color: var(--hdr-wifi-blue);
+}
+
+/* 4. Language Dropdown (Circular Flags) */
+.lang-dropdown-wrap {
+  position: relative;
+}
+
+.lang-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 0 4px;
+}
+
+.flag-icon-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+}
+
+.flag-icon-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.lang-caret {
+  transition: transform 0.2s ease;
+  color: var(--hdr-text-muted);
+}
+
+.lang-dropdown-wrap.open .lang-caret {
+  transform: rotate(180deg);
+}
+
+.lang-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--hdr-bg-card);
+  border: 1px solid var(--hdr-border);
+  border-radius: 10px;
+  box-shadow: var(--hdr-shadow-md);
+  padding: 6px;
+  min-width: 140px;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  animation: hdrMenuFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lang-dropdown-menu.hidden {
+  display: none;
+}
+
+@keyframes hdrMenuFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.lang-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--hdr-text-secondary);
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.12s, color 0.12s;
+}
+
+.lang-item:hover {
+  background: var(--hdr-bg-soft);
+  color: var(--hdr-text-primary);
+}
+
+.lang-item.active {
+  background: rgba(37, 99, 235, 0.08);
+  color: var(--hdr-primary);
+  font-weight: 800;
+}
+
+/* ===================================================
+   RESPONSIVE DESIGN (Mobile & Tablet Breakpoints)
+   =================================================== */
+
+/* Tablet & Mobile (<= 768px) */
+@media (max-width: 768px) {
+  .header-inner {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .brand-wrap {
+    gap: 8px;
+  }
+
+  .app-logo-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+  }
+
+  /* Automatically switch to Short Title */
+  .brand-text .title-full {
+    display: none !important;
+  }
+
+  .brand-text .title-short {
+    display: inline !important;
+  }
+
+  .brand-text h1 {
+    font-size: 14px;
+    font-weight: 800;
+    max-width: 160px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .header-actions {
+    gap: 4px;
+  }
+
+  /* Compact button scaling */
+  .hdr-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+  }
+
+  .hdr-btn svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .hdr-btn-ver {
+    height: 30px;
+    min-width: 28px;
+    padding: 0 5px;
+    font-size: 9.5px;
+    border-radius: 7px;
+  }
+
+  .hdr-btn-pro {
+    font-size: 10px;
+  }
+
+  /* Hide WiFi badge on mobile to preserve layout space */
+  .hdr-btn-net {
+    display: none !important;
+  }
+
+  .flag-icon-circle {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Extra Small Mobile (<= 380px, e.g. iPhone SE / Fold outer) */
+@media (max-width: 380px) {
+  .header-inner {
+    padding: 8px 6px;
+    gap: 4px;
+  }
+
+  .app-logo-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+  }
+
+  .brand-text h1 {
+    font-size: 12px;
+    max-width: 115px;
+  }
+
+  .hdr-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+  }
+
+  .hdr-btn-ver {
+    height: 28px;
+    min-width: 25px;
+    padding: 0 4px;
+    font-size: 8.5px;
+  }
+}
