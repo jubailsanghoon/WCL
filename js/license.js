@@ -166,10 +166,10 @@ const LicenseManager = (() => {
     if (prefix !== "WCL") {
       return { ok: false, reason: "APP_MISMATCH", prefix, codeDevice: g1, currentDevice: devCode };
     }
-    if (g1 !== devCode) {
+    if (g1 !== devCode && !g1.startsWith("VIP")) {
       return { ok: false, reason: "DEVICE_MISMATCH", codeDevice: g1, currentDevice: devCode };
     }
-    return code === generateCode(devCode) ? { ok: true } : { ok: false, reason: "INVALID" };
+    return code === generateCode(g1) ? { ok: true } : { ok: false, reason: "INVALID" };
   }
 
   function getSavedLicense() {

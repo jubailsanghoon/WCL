@@ -90,9 +90,9 @@ body {
 
 /* 로고 이미지 지원 스타일 (기존 파란색 로고 유지) */
 .app-logo-box {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
