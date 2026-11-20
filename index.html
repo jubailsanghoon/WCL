@@ -19,7 +19,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="icons/m-icon.png" />
 
   <!-- Preload fonts & Stylesheet -->
-  <link rel="stylesheet" href="css/style.css?v=20261114" />
+  <link rel="stylesheet" href="css/style.css?v=1.1" />
 </head>
 <body>
 
@@ -40,7 +40,7 @@
 
       <div class="header-actions">
         <!-- App Version Badge to the left of Pro -->
-        <span class="hdr-btn hdr-btn-ver version-badge" id="appVersionBadge" title="Version 1.0">v1.0</span>
+        <span class="hdr-btn hdr-btn-ver version-badge" id="appVersionBadge" title="Version 1.1">v1.1</span>
 
         <!-- Compact Pro & Offline controls unified into .hdr-btn style (matching theme & help) -->
         <button type="button" id="proBadge" class="hdr-btn hdr-btn-pro pro-badge-compact is-pro" title="License: PRO" data-i18n-title="proModalTitleManage">Pro</button>
@@ -279,8 +279,12 @@
             <div style="font-size:18px; font-weight:900; color:var(--brand-orange);" id="craneSwlVal">0.00 ton</div>
           </div>
         </section>
+      </div>
+    </div>
 
-        <!-- 6-1. 현장 안전 지침 (Safety Guidelines) -->
+    <!-- Bottom Tools Row (Full Width on PC: Safety Guidelines + Lifting Plan) -->
+    <div class="bottom-tools-grid">
+      <!-- 6-1. 현장 안전 지침 (Safety Guidelines) -->
         <section class="outline-card" id="safetyGuidelinesCard">
           <div class="card-header-row">
             <h2 class="card-title">
@@ -363,12 +367,13 @@
           <div style="font-size:12.5px; color:var(--text-muted); line-height:1.55; margin-bottom:14px;" data-i18n="planCardDesc">
             선택된 강종·형상 치수 및 인양 각도(SWL)에 따른 국가별 공식 인양작업계획서를 A4 규격 PDF로 출력 및 공유합니다.
           </div>
-          <button type="button" class="action-btn" id="btnExportPlan" style="width:100%; height:44px; background-color:#2563eb; color:#fff; font-size:14.5px; font-weight:900;" title="Critical Lift Plan (PDF)">
+          <button type="button" class="action-btn" id="btnExportPlan" style="width:100%; height:44px; flex:none; background-color:#2563eb; color:#fff; font-size:14.5px; font-weight:900;" title="Critical Lift Plan (PDF)">
             📄 <span id="lblPlanBtnText">인양작업계획서 (PRO 🔒)</span>
           </button>
         </section>
+    </div>
 
-        <!-- 8. 저장 데이터 목록 -->
+    <!-- 8. 저장 데이터 목록 (Full Width) -->
         <section class="outline-card">
           <div class="records-header">
             <div style="font-size:15px; font-weight:800; display:flex; align-items:center; gap:6px;">
@@ -410,25 +415,22 @@
             </table>
           </div>
         </section>
-      </div>
-
-    </div>
   </main>
 
   <footer class="app-footer">
-    Metal Weight & Lifting Assist v1.0 · ISKorea Solutions<br>
+    Metal Weight & Lifting Assist v1.1 · ISKorea Solutions<br>
     <span style="display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;"><span>Copyright © 2026 ISKorea Solutions. All rights reserved.</span><a href="mailto:isksolution555@gmail.com" title="Contact" aria-label="Contact Email" style="display:inline-flex;align-items:center;justify-content:center;color:inherit;text-decoration:none;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></a></span>
   </footer>
 
   <!-- Modular Scripts -->
-  <script src="js/i18n.js?v=20261114"></script>
-  <script src="js/calculator.js?v=20261114"></script>
-  <script src="js/data_store.js?v=20261114"></script>
-  <script src="js/diagrams.js?v=20261114"></script>
-  <script src="js/help_manual.js?v=20261114"></script>
-  <script src="js/lifting_plan.js?v=20261114"></script>
-  <script src="js/license.js?v=20261118"></script>
-  <script src="js/main.js?v=20261115"></script>
+  <script src="js/i18n.js?v=1.1"></script>
+  <script src="js/calculator.js?v=1.1"></script>
+  <script src="js/data_store.js?v=1.1"></script>
+  <script src="js/diagrams.js?v=1.1"></script>
+  <script src="js/help_manual.js?v=1.1"></script>
+  <script src="js/lifting_plan.js?v=1.1"></script>
+  <script src="js/license.js?v=1.1"></script>
+  <script src="js/main.js?v=1.1"></script>
 <script>
 if (!sessionStorage.getItem('iskHit_wcl')) {
   sessionStorage.setItem('iskHit_wcl', '1');

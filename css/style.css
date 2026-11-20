@@ -475,11 +475,36 @@ html.dark .lang-item.active .lang-code {
   min-width: 0; /* CRITICAL: prevents blowout of grid tracks */
 }
 
+.bottom-tools-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  width: 100%;
+}
+
+.bottom-tools-grid > * {
+  min-width: 0;
+}
+
 @media (min-width: 1024px) {
   .two-col-grid {
     grid-template-columns: minmax(420px, 470px) minmax(0, 1fr);
     align-items: start;
     gap: 24px;
+  }
+
+  .bottom-tools-grid {
+    display: grid;
+    grid-template-columns: 1.55fr 1fr;
+    align-items: stretch;
+    gap: 24px;
+    width: 100%;
+  }
+
+  #liftingPlanCard {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 }
 
@@ -1240,14 +1265,16 @@ html.dark .angle-warn-box.danger { background-color: #7f1d1d; color: #fca5a5; bo
 
 .records-table th {
   background-color: var(--bg-soft);
-  padding: 10px 14px;
+  padding: 10px 8px;
   font-weight: 800;
+  font-size: 12px;
   border-bottom: 1.5px solid var(--border-light);
   white-space: nowrap;
 }
 
 .records-table td {
-  padding: 10px 14px;
+  padding: 10px 8px;
+  font-size: 12.5px;
   border-bottom: 1px solid var(--border-light);
   white-space: nowrap;
 }
@@ -1879,12 +1906,13 @@ html.dark .manual-pro-active-banner .pro-active-title {
 
 /* FOOTER */
 .app-footer {
-  text-align: center;
+  text-align: right;
+  max-width: 1240px;
+  margin: 20px auto 0;
   padding: 30px 20px 50px;
   font-size: 12px;
   color: var(--text-muted);
   border-top: 1px solid var(--border-light);
-  margin-top: 20px;
 }
 
 /* ===================================================
@@ -1911,9 +1939,9 @@ html.dark .manual-pro-active-banner .pro-active-title {
   }
 
   .app-logo-box {
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
   }
 
   .brand-text .title-full {
@@ -2414,8 +2442,9 @@ html.dark .manual-pro-active-banner .pro-active-title {
   }
 
   .app-logo-box {
-    width: 28px;
-    height: 28px;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
   }
 
   .shape-grid {
