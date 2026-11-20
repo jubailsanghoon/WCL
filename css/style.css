@@ -43,7 +43,7 @@ html.dark {
 }
 
 html, body {
-  overflow-x: hidden;
+  overflow-x: clip;
   max-width: 100vw;
 }
 
@@ -106,8 +106,47 @@ body {
   height: 100%;
   object-fit: contain;
   border-radius: 10px;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
+}
+
+.app-logo-box {
+  transition: transform 0.15s ease;
+}
+
+.app-logo-box:hover {
+  transform: scale(1.05);
+}
+
+.logo-preview-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.logo-preview-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.logo-preview-img {
+  width: min(240px, 60vw);
+  height: min(240px, 60vw);
+  object-fit: contain;
+  border-radius: 28px;
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.35));
+  transform: scale(0.85);
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.logo-preview-overlay.show .logo-preview-img {
+  transform: scale(1);
 }
 
 .brand-text h1 {

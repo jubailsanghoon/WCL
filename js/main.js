@@ -1518,6 +1518,34 @@ const App = {
   closeModal() {
     const modal = document.getElementById("subPageModal");
     if (modal) modal.classList.add("hidden");
+  },
+
+  showLogoPreview() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    let overlay = document.getElementById("logoPreviewOverlay");
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.id = "logoPreviewOverlay";
+      overlay.className = "logo-preview-overlay";
+      overlay.innerHTML = `<img class="logo-preview-img" src="icons/wcl-logo.svg?v=1.1" alt="MWL Logo" />`;
+      overlay.addEventListener("click", () => {
+        if (this._logoPreviewTimer) {
+          clearTimeout(this._logoPreviewTimer);
+          this._logoPreviewTimer = null;
+        }
+        overlay.classList.remove("show");
+      });
+      document.body.appendChild(overlay);
+    }
+
+    if (this._logoPreviewTimer) {
+      clearTimeout(this._logoPreviewTimer);
+    }
+    requestAnimationFrame(() => overlay.classList.add("show"));
+    this._logoPreviewTimer = setTimeout(() => {
+      overlay.classList.remove("show");
+      this._logoPreviewTimer = null;
+    }, 2000);
   }
 };
 
@@ -1525,6 +1553,13 @@ const App = {
 document.addEventListener("DOMContentLoaded", () => {
   window.App = App;
   App.init();
+  const logoBox = document.querySelector(".app-logo-box");
+  if (logoBox) {
+    logoBox.addEventListener("click", (e) => {
+      e.stopPropagation();
+      App.showLogoPreview();
+    });
+  }
 });
 
 if (typeof module !== "undefined") {

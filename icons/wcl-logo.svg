@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="wclBlueGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1a63ff" />
+      <stop offset="100%" stop-color="#1354f5" />
+    </linearGradient>
+    <filter id="wclDropShadow" x="-20%" y="-20%" width="140%" height="145%">
+      <feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#041548" flood-opacity="0.42" />
+    </filter>
+  </defs>
+
+  <!-- Rounded Squircle Background -->
+  <rect x="40" y="40" width="944" height="944" rx="252" ry="252" fill="url(#wclBlueGrad)" />
+
+  <!-- Continuous Vector Weight / Lifting Lug Outline -->
+  <path
+    d="M 472 434 A 64 64 0 1 1 552 434 L 656 434 L 787 740 L 237 740 L 368 434 Z"
+    fill="none"
+    stroke="#ffffff"
+    stroke-width="48"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    filter="url(#wclDropShadow)"
+  />
+</svg>
